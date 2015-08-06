@@ -56,7 +56,7 @@ namespace MdQr
                         qrcode.drawBarcode(fileName);
                         qrcode.drawBarcode(fileName2);
                         pictureBox1.ImageLocation = fileName;
-
+                        pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
                         //test
                         rot = Decrypt(rot);
                         Console.WriteLine(rot);
@@ -177,28 +177,18 @@ namespace MdQr
 
         private void button2_Click(object sender, EventArgs e)
         {
-            /*string value = "guru";
-            Console.WriteLine(value);
+            fileName = String.Format(@"{0}\images\url.png", Application.StartupPath);
+            string rot = "07-01-01-F";
+            rot = Encrypt(rot);
+            Console.WriteLine(rot);
+            QRCode qrcode = new QRCode();
+            qrcode.Data = rot;
+            qrcode.X = 4;
+            qrcode.drawBarcode(fileName);
+            pictureBox1.ImageLocation = fileName;
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
 
-            value = Transform(value);
-            Console.WriteLine("en1 " + value);
-            value = Transform2(value);
-            Console.WriteLine("en2 " + value);
 
-
-            value = Transform2(value);
-            Console.WriteLine("en4 " + value);
-            value = Transform(value);
-            Console.WriteLine("en5 " + value);*/
-
-            string encrypted = Encrypt("guru");
-            Console.Out.WriteLine(encrypted);
-
-            string decrypted = Decrypt(encrypted);
-            Console.Out.WriteLine(decrypted);
-
-            
-                       
 
 
         }
