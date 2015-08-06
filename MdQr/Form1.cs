@@ -18,96 +18,20 @@ namespace MdQr
 
     public partial class Form1 : Form
     {
+        string fileName;
         public Form1()
         {
             InitializeComponent();
         }
-        ///////////
-
-
-
-
-        /// ////////////
-
-
-        public static string Transform(string value)
-        {
-            char[] array = value.ToCharArray();
-            for (int i = 0; i < array.Length; i++)
-            {
-                int number = (int)array[i];
-
-                if (number >= 'a' && number <= 'z')
-                {
-                    if (number > 'm')
-                    {
-                        number -= 17;
-                    }
-                    else
-                    {
-                        number += 17;
-                    }
-                }
-                else if (number >= 'A' && number <= 'Z')
-                {
-                    if (number > 'M')
-                    {
-                        number -= 17;
-                    }
-                    else
-                    {
-                        number += 17;
-                    }
-                }
-                array[i] = (char)number;
-            }
-            return new string(array);
-        }
-
-        public static string Transform2(string value)
-        {
-            char[] array = value.ToCharArray();
-            for (int i = 0; i < array.Length; i++)
-            {
-                int number = (int)array[i];
-
-                if (number >= 'a' && number <= 'z')
-                {
-                    if (number > 'm')
-                    {
-                        number -= 18;
-                    }
-                    else
-                    {
-                        number += 18;
-                    }
-                }
-                else if (number >= 'A' && number <= 'Z')
-                {
-                    if (number > 'M')
-                    {
-                        number -= 18;
-                    }
-                    else
-                    {
-                        number += 18;
-                    }
-                }
-                array[i] = (char)number;
-            }
-            return new string(array);
-        }
-
-
-
-
-        ///
+      
         private void button1_Click(object sender, EventArgs e)
         {
+            String fileName2;
             String camName = textBox1.Text.ToString();
             String ipAddress = textBox2.Text.ToString();
             String macAddress = textBox3.Text.ToString();
-
+            fileName = String.Format(@"{0}\images\"+camName+ DateTime.Now.ToString("yyyy-MM-ddTHH'-'mm'-'")+".png", Application.StartupPath);
+            fileName2 = String.Format(@"{0}\images\" + camName + DateTime.Now.ToString("yyyy-MM-ddTHH'-'mm'-'") + "XX.png", Application.StartupPath);
             //validation for ip and mac
             IPAddress address;
             if (IPAddress.TryParse(ipAddress, out address))
@@ -123,44 +47,28 @@ namespace MdQr
                     }
                     else
                     {
-                        string rot = "Name: " + camName + "\r\n" + "IP: " + ipAddress + "\r\n" + "MAC: " + macAddress;
+                        string rot = camName + "~" +ipAddress + "~" + macAddress;
                         rot = Encrypt(rot);
                         Console.WriteLine(rot);
                         QRCode qrcode = new QRCode();
                         qrcode.Data = rot;
                         qrcode.X = 4;
-                        qrcode.drawBarcode("c:\\qr_code.png");
-                        qr1.Data = rot;
-                        qr1.Refresh();
+                        qrcode.drawBarcode(fileName);
+                        qrcode.drawBarcode(fileName2);
+                        pictureBox1.ImageLocation = fileName;
 
+                        //test
                         rot = Decrypt(rot);
                         Console.WriteLine(rot);
+                        //test
 
-                        /*add text to image
-                        System.Drawing.Image img = System.Drawing.Image.FromFile(@"c:\qr_code.png");
-                        MessageBox.Show("Width: " + img.Width + ", Height: " + img.Height);
-                        img.Dispose();
-
-                        FileStream fs = new FileStream(@"c:\qr_code.png", FileMode.Open, FileAccess.Read);
-                        Image image = Image.FromStream(fs);
-                        fs.Close();
-
-                        Bitmap b = new Bitmap(image);
-                        Graphics graphics = Graphics.FromImage(b);
-                        graphics.DrawString("Hello", this.Font, Brushes.Black, 80, 130);
-
-                        b.Save(@"c:\qr_code.png", image.RawFormat);
-
-                        image.Dispose();
-                        b.Dispose();*/
-
-                        string inputImage = @"C:\qr_code.png";
-                        string outputImageFilePath = @"C:\qr_code1.png";
-                        string textToDisplayOnImage = "www.aspnettutorialonline.blogspot.com/";
-
+                        
+                        string inputImage = String.Format(@"{0}\blank.png", Application.StartupPath);
+                        string outputImageFilePath = String.Format(@"{0}\temp.png", Application.StartupPath);
+                        string textToDisplayOnImage = camName;
                         Bitmap imageInBitMap = new Bitmap(inputImage);
                         Graphics imageGraphics = Graphics.FromImage(imageInBitMap);
-
+                        
                         //Set the alignment based on the coordinates 
                         StringFormat formatAssignment = new StringFormat();
                         formatAssignment.Alignment = StringAlignment.Near;
@@ -169,14 +77,19 @@ namespace MdQr
                         Color assignColorToString = System.Drawing.ColorTranslator.FromHtml("#000000");
 
                         //Assigning font size, font family, position of the text to display and others.
-                        imageGraphics.DrawString(textToDisplayOnImage, new Font("Times new Roman", 8, FontStyle.Bold), new SolidBrush(assignColorToString), new Point(80, 80), formatAssignment);
-
-                        /*saving in the computer with label
+                        imageGraphics.DrawString(textToDisplayOnImage, new Font("Times new Roman", 8, FontStyle.Bold), new SolidBrush(assignColorToString), new Point(0, 0), formatAssignment);
+       
+                        //saving in the computer with label
                         imageInBitMap.Save(outputImageFilePath);
-                        String[] a = { inputImage, inputImage };
+                        imageInBitMap.Dispose();
+
+                        //join images
+                        String[] a = { fileName2, outputImageFilePath };
                         Bitmap com = CombineBitmap(a);
-                        com.Save(@"c:\com.png");
-                        com.Dispose();*/
+                        com.Save(fileName2);
+                        com.Dispose();
+                        imageGraphics.Dispose();
+                        imageGraphics.Dispose();
 
                     }
 
