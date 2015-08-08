@@ -1,4 +1,5 @@
-﻿using OnBarcode.Barcode;
+﻿using Npgsql;
+using OnBarcode.Barcode;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,6 +20,10 @@ namespace MdQr
     public partial class Form1 : Form
     {
         string fileName;
+
+        private DataSet ds = new DataSet();
+        private DataTable dt = new DataTable();
+
         public Form1()
         {
             InitializeComponent();
@@ -28,87 +33,63 @@ namespace MdQr
         {
             String fileName2;
             String camName = textBox1.Text.ToString();
-            String ipAddress = textBox2.Text.ToString();
-            String macAddress = textBox3.Text.ToString();
             fileName = String.Format(@"{0}\images\"+camName+ DateTime.Now.ToString("yyyy-MM-ddTHH'-'mm'-'")+".png", Application.StartupPath);
             fileName2 = String.Format(@"{0}\images\" + camName + DateTime.Now.ToString("yyyy-MM-ddTHH'-'mm'-'") + "XX.png", Application.StartupPath);
             //validation for ip and mac
             IPAddress address;
-            if (IPAddress.TryParse(ipAddress, out address))
+
+            if (!String.IsNullOrEmpty(camName))
             {
-                String m = macAddress;
-                m = macAddress.Replace(" ", "").Replace(":", "").Replace("-", "");
-                Regex r = new Regex("^([0-9a-fA-F]{2}(?:[:-]?[0-9a-fA-F]{2}){5})$");
-                if (r.IsMatch(m))
-                {
-                    if (camName.Equals("") || camName.Equals(null))
-                    {
-                        MessageBox.Show("Need a Camera Name");
-                    }
-                    else
-                    {
-                        string rot = camName + "~" +ipAddress + "~" + macAddress;
-                        rot = Encrypt(rot);
-                        Console.WriteLine(rot);
-                        QRCode qrcode = new QRCode();
-                        qrcode.Data = rot;
-                        qrcode.X = 4;
-                        qrcode.drawBarcode(fileName);
-                        qrcode.drawBarcode(fileName2);
-                        pictureBox1.ImageLocation = fileName;
-                        pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
-                        //test
-                        rot = Decrypt(rot);
-                        Console.WriteLine(rot);
-                        //test
 
-                        
-                        string inputImage = String.Format(@"{0}\blank.png", Application.StartupPath);
-                        string outputImageFilePath = String.Format(@"{0}\temp.png", Application.StartupPath);
-                        string textToDisplayOnImage = camName;
-                        Bitmap imageInBitMap = new Bitmap(inputImage);
-                        Graphics imageGraphics = Graphics.FromImage(imageInBitMap);
-                        
-                        //Set the alignment based on the coordinates 
-                        StringFormat formatAssignment = new StringFormat();
-                        formatAssignment.Alignment = StringAlignment.Near;
+                string rot = camName;
+                rot = Encrypt(rot);
+                Console.WriteLine(rot);
+                QRCode qrcode = new QRCode();
+                qrcode.Data = rot;
+                qrcode.X = 4;
+                qrcode.drawBarcode(fileName);
+                qrcode.drawBarcode(fileName2);
+                pictureBox1.ImageLocation = fileName;
+                pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+                //test
+                rot = Decrypt(rot);
+                Console.WriteLine(rot);
+                //test
 
-                        //Here we are going to assign the font color
-                        Color assignColorToString = System.Drawing.ColorTranslator.FromHtml("#000000");
 
-                        //Assigning font size, font family, position of the text to display and others.
-                        imageGraphics.DrawString(textToDisplayOnImage, new Font("Times new Roman", 8, FontStyle.Bold), new SolidBrush(assignColorToString), new Point(0, 0), formatAssignment);
-       
-                        //saving in the computer with label
-                        imageInBitMap.Save(outputImageFilePath);
-                        imageInBitMap.Dispose();
+                string inputImage = String.Format(@"{0}\blank.png", Application.StartupPath);
+                string outputImageFilePath = String.Format(@"{0}\temp.png", Application.StartupPath);
+                string textToDisplayOnImage = camName;
+                Bitmap imageInBitMap = new Bitmap(inputImage);
+                Graphics imageGraphics = Graphics.FromImage(imageInBitMap);
 
-                        //join images
-                        String[] a = { fileName2, outputImageFilePath };
-                        Bitmap com = CombineBitmap(a);
-                        com.Save(fileName2);
-                        com.Dispose();
-                        imageGraphics.Dispose();
-                        imageGraphics.Dispose();
+                //Set the alignment based on the coordinates 
+                StringFormat formatAssignment = new StringFormat();
+                formatAssignment.Alignment = StringAlignment.Near;
 
-                    }
+                //Here we are going to assign the font color
+                Color assignColorToString = System.Drawing.ColorTranslator.FromHtml("#000000");
 
-                }
-                else
-                {
-                    MessageBox.Show("mac is wrong");
-                }
+                //Assigning font size, font family, position of the text to display and others.
+                imageGraphics.DrawString(textToDisplayOnImage, new Font("Times new Roman", 8, FontStyle.Bold), new SolidBrush(assignColorToString), new Point(0, 0), formatAssignment);
+
+                //saving in the computer with label
+                imageInBitMap.Save(outputImageFilePath);
+                imageInBitMap.Dispose();
+
+                //join images
+                String[] a = { fileName2, outputImageFilePath };
+                Bitmap com = CombineBitmap(a);
+                com.Save(fileName2);
+                com.Dispose();
+                imageGraphics.Dispose();
+                imageGraphics.Dispose();
 
             }
             else
             {
-                MessageBox.Show("IP WRONG");
+                MessageBox.Show("Enter a Camera Name");
             }
-
-
-
-
-
         }
 
 
@@ -242,8 +223,73 @@ namespace MdQr
             }
             return csp.CreateDecryptor();
         }
-       
+
+        private void tabControl1_Selected(object sender, TabControlEventArgs e)
+        {
+            if (e.TabPage == tabPage1)
+            {
+                refresh();
+            }
+            if (e.TabPage == tabPage2)
+            {
+                MessageBox.Show("2");
+            }
+        }
+
+        //pg connect on load
+        public void refresh()
+        {
+            try
+            {
+                // PostgeSQL-style connection string
+                string connstring = String.Format("Server={0};Port={1};" +
+                    "User Id={2};Password={3};Database={4};",
+                    "maindev.ddns.net", "5432", "jon",
+                    "jon", "jon");
+                // Making connection with Npgsql provider
+                NpgsqlConnection conn = new NpgsqlConnection(connstring);
+                conn.Open();
+                // quite complex sql statement
+                string sql = "SELECT label as \"Label\",type as \"Type\" FROM part";
+                // data adapter making request from our connection
+                NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, conn);
+                // i always reset DataSet before i do
+                // something with it.... i don't know why :-)
+                ds.Reset();
+                // filling DataSet with result from NpgsqlDataAdapter
+                da.Fill(ds);
+                // since it C# DataSet can handle multiple tables, we will select first
+                dt = ds.Tables[0];
+                // connect grid to DataTable
+                dataGridView1.DataSource = dt;
+                // since we only showing the result we don't need connection anymore
+                conn.Close();
+            }
+            catch (Exception msg)
+            {
+                // something went wrong, and you wanna know why
+                MessageBox.Show(msg.ToString());
+                throw;
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            refresh();
+        }
+
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dataGridView1.SelectedRows)
+            {
+                pictureBox1.Image = null;
+                string value1 = row.Cells[0].Value.ToString();
+                string value2 = row.Cells[1].Value.ToString();
+                textBox1.Text=value1;
+            }
+        }
     }
+
 
 
 

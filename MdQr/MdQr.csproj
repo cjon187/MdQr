@@ -36,6 +36,13 @@
     <Reference Include="ChilkatDotNet45">
       <HintPath>.\ChilkatDotNet45.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Security">
+      <HintPath>.\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=2.2.5.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Npgsql.dll</HintPath>
+    </Reference>
     <Reference Include="OnBarcode.Barcode.WinForms, Version=6.0.0.41022, Culture=neutral, PublicKeyToken=4da8d7f865f70e30, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\OnBarcode.Barcode.WinForms.dll</HintPath>
