@@ -16,10 +16,11 @@ using System.Windows.Forms;
 
 namespace MdQr
 {
-
+    
     public partial class Form1 : Form
     {
         string fileName;
+        string dd;
 
         private DataSet ds = new DataSet();
         private DataTable dt = new DataTable();
@@ -33,8 +34,12 @@ namespace MdQr
         {
             String fileName2;
             String camName = textBox1.Text.ToString();
-            fileName = String.Format(@"{0}\images\"+camName+ DateTime.Now.ToString("yyyy-MM-ddTHH'-'mm'-'")+".png", Application.StartupPath);
-            fileName2 = String.Format(@"{0}\images\" + camName + DateTime.Now.ToString("yyyy-MM-ddTHH'-'mm'-'") + "XX.png", Application.StartupPath);
+            //fileName = String.Format(@"{0}\images\"+camName+ DateTime.Now.ToString("yyyy-MM-ddTHH'-'mm'-'")+".png", Application.StartupPath);
+            //fileName2 = String.Format(@"{0}\images\" + camName + DateTime.Now.ToString("yyyy-MM-ddTHH'-'mm'-'") + "XX.png", Application.StartupPath);
+            fileName = String.Format(@"{0}\images\"+camName+".png", Application.StartupPath);
+            fileName2 = String.Format(@"{0}\images\" + camName + "XX.png", Application.StartupPath);
+
+
             //validation for ip and mac
             IPAddress address;
 
@@ -232,23 +237,22 @@ namespace MdQr
             }
             if (e.TabPage == tabPage2)
             {
-                MessageBox.Show("2");
+                
             }
         }
 
         //pg connect on load
         public void refresh()
         {
+            
+            NpgsqlConnection conn = new NpgsqlConnection(global.connstring);
+            conn.Open();
             try
             {
                 // PostgeSQL-style connection string
-                string connstring = String.Format("Server={0};Port={1};" +
-                    "User Id={2};Password={3};Database={4};",
-                    "maindev.ddns.net", "5432", "jon",
-                    "jon", "jon");
+                
                 // Making connection with Npgsql provider
-                NpgsqlConnection conn = new NpgsqlConnection(connstring);
-                conn.Open();
+               
                 // quite complex sql statement
                 string sql = "SELECT label as \"Label\",type as \"Type\" FROM part";
                 // data adapter making request from our connection
@@ -263,7 +267,7 @@ namespace MdQr
                 // connect grid to DataTable
                 dataGridView1.DataSource = dt;
                 // since we only showing the result we don't need connection anymore
-                conn.Close();
+                //conn.Close();
             }
             catch (Exception msg)
             {
@@ -271,6 +275,23 @@ namespace MdQr
                 MessageBox.Show(msg.ToString());
                 throw;
             }
+
+            ///polulate combobox
+            // Define a query
+            NpgsqlCommand command = new NpgsqlCommand("SELECT label FROM part",conn);
+
+            // Execute the query and obtain a result set
+            NpgsqlDataReader dr = command.ExecuteReader();
+            // Output rows
+            DataTable dt1 = new DataTable();
+            dt1.Columns.Add("label", typeof(string));
+            dt1.Load(dr);
+
+            comboBox1.ValueMember = "label";
+            comboBox1.DisplayMember = "label";
+            comboBox1.DataSource = dt1;
+
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -285,8 +306,19 @@ namespace MdQr
                 pictureBox1.Image = null;
                 string value1 = row.Cells[0].Value.ToString();
                 string value2 = row.Cells[1].Value.ToString();
-                textBox1.Text=value1;
+                textBox1.Text=value1+"~"+value2;
             }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            dd = comboBox1.SelectedValue.ToString();
+            
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 
