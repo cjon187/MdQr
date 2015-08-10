@@ -11,7 +11,7 @@ namespace MdQr
        public static string connstring = String.Format("Server={0};Port={1};" +
                     "User Id={2};Password={3};Database={4};",
                     "maindev.ddns.net", "5432", "jon",
-                    "jon", "jon");
+                    "jon", "peyman");
 
 
     }
