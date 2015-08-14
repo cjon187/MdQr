@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using Cassandra;
 namespace MdQr
 {
     
@@ -24,6 +25,7 @@ namespace MdQr
 
         private DataSet ds = new DataSet();
         private DataTable dt = new DataTable();
+        
 
         public Form1()
         {
@@ -278,18 +280,18 @@ namespace MdQr
 
             ///polulate combobox
             // Define a query
-            NpgsqlCommand command = new NpgsqlCommand("SELECT label FROM part",conn);
+           // NpgsqlCommand command = new NpgsqlCommand("SELECT label FROM part",conn);
 
             // Execute the query and obtain a result set
-            NpgsqlDataReader dr = command.ExecuteReader();
+            //NpgsqlDataReader dr = command.ExecuteReader();
             // Output rows
-            DataTable dt1 = new DataTable();
-            dt1.Columns.Add("label", typeof(string));
-            dt1.Load(dr);
+            //DataTable dt1 = new DataTable();
+            //dt1.Columns.Add("label", typeof(string));
+            //dt1.Load(dr);
 
-            comboBox1.ValueMember = "label";
-            comboBox1.DisplayMember = "label";
-            comboBox1.DataSource = dt1;
+            //comboBox1.ValueMember = "label";
+           // comboBox1.DisplayMember = "label";
+            //comboBox1.DataSource = dt1;
 
 
         }
@@ -313,12 +315,37 @@ namespace MdQr
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             dd = comboBox1.SelectedValue.ToString();
-            
+            textBox1.Text = dd;
+
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            Cluster cluster = Cluster.Builder().AddContactPoint("10.0.31.31").Build();
+            ISession session = cluster.Connect("demo");
+            RowSet rows = session.Execute("select * from camera");
+
+            //pouplate the ddlist
+            var pizzaChoices = new Dictionary<string,string>();
+            pizzaChoices.Add("Small", "small");
+
+
+            foreach (Row row in rows)
+            {
+                Console.WriteLine("{0} {1}", row["id"], row["lastuser"]);
+                pizzaChoices.Add(row["label"].ToString(), row["label"].ToString());
+            }
+
+            comboBox1.DataSource = new BindingSource(pizzaChoices, null);
+            comboBox1.DisplayMember = "Value";
+            comboBox1.ValueMember = "Key";
+
+
         }
     }
 
