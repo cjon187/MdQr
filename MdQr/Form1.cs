@@ -326,30 +326,23 @@ namespace MdQr
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-<<<<<<< HEAD
             Cluster cluster = Cluster.Builder().AddContactPoint("10.0.31.31").Build();
             ISession session = cluster.Connect("demo");
             RowSet rows = session.Execute("select * from camera");
 
             //pouplate the ddlist
             var pizzaChoices = new Dictionary<string,string>();
-            pizzaChoices.Add("Small", "small");
-
-
+            
             foreach (Row row in rows)
             {
                 Console.WriteLine("{0} {1}", row["id"], row["lastuser"]);
-                pizzaChoices.Add(row["label"].ToString(), row["label"].ToString());
+                pizzaChoices.Add(row["label"].ToString() + "~" + row["parttype"].ToString(), row["label"].ToString()+"~"+ row["parttype"].ToString());
             }
 
             comboBox1.DataSource = new BindingSource(pizzaChoices, null);
             comboBox1.DisplayMember = "Value";
             comboBox1.ValueMember = "Key";
 
-
-=======
-           
->>>>>>> origin/master
         }
     }
 
