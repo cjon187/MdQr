@@ -326,6 +326,7 @@ namespace MdQr
 
         private void button1_Click_1(object sender, EventArgs e)
         {
+<<<<<<< HEAD
             Cluster cluster = Cluster.Builder().AddContactPoint("10.0.31.31").Build();
             ISession session = cluster.Connect("demo");
             RowSet rows = session.Execute("select * from camera");
@@ -346,6 +347,9 @@ namespace MdQr
             comboBox1.ValueMember = "Key";
 
 
+=======
+           
+>>>>>>> origin/master
         }
     }
 
