@@ -256,7 +256,7 @@ namespace MdQr
                 // Making connection with Npgsql provider
                
                 // quite complex sql statement
-                string sql = "SELECT label as \"Label\",type as \"Type\" FROM part where type !='cable' ";
+                string sql = "SELECT label as \"Label\",parttype as \"Type\" FROM camera ";
                 // data adapter making request from our connection
                 NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, conn);
                 // i always reset DataSet before i do
